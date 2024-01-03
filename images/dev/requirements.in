@@ -1,0 +1,13 @@
+jupyterlab # For development
+black # Linting
+# Test dependencies
+pytest
+coverage
+
+
+streamlit # Gui
+alembic # Database 
+# Core dependencies
+pandas
+requests_html
+html2text

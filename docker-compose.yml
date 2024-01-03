@@ -1,0 +1,26 @@
+
+version: "3.9"
+services:
+  ### PostgreSQL Database
+  postgres:
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=orion
+    image: postgres:latest
+    volumes:
+      - $HOME/database:/var/lib/postgresql
+    ports:
+      - 5432:5432
+
+  ### Jupyterlab development environment (comment out if not needed)
+  dev_container:
+    image: user/bar
+    ports:
+      - 8080:8080
+    build:
+      context: ./images/dev
+      dockerfile: Dockerfile
+    entrypoint: ["jupyter", "lab","--ip=0.0.0.0", "--port=8080","--allow-root"]
