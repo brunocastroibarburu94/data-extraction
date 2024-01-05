@@ -1,2 +1,4 @@
 .prefect/
 .vscode/
+**dev.ipynb
+**.ipynb_checkpoints**
