@@ -2,3 +2,4 @@
 .vscode/
 **dev.ipynb
 **.ipynb_checkpoints**
+.env
