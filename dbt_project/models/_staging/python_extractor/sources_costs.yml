@@ -1,0 +1,30 @@
+version: 2
+
+sources:
+  - name: python_extractor
+    schema: main
+    tags: [source]
+    loader: Pyhton Script
+    description: 'Cost table'
+    meta:
+      contains_pii: false
+      owner: "@bruno_castro"
+    tables:
+      - name: sources.costs
+
+models:
+  - name: python_extractor__sources.costs
+    description: "Model linked to the raw data of energy costs"
+    columns:
+      - name: id
+        description: "Unique identifier for a record"
+        tests:
+          - not_null
+  - name: sources_costs
+    description: "Refined/clean model of energy costs data"
+    columns:
+      - name: id
+        description: "The primary key for this table"
+        tests:
+          - unique
+          - not_null

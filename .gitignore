@@ -1,0 +1,6 @@
+.prefect/
+.vscode/
+**dev.ipynb
+**.ipynb_checkpoints**
+.env
+.pgadmin-data/

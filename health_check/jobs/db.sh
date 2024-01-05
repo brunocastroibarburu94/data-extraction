@@ -1,0 +1,1 @@
+pg_isready --host=postgres --username=postgres --port=5432 --dbname=orion
