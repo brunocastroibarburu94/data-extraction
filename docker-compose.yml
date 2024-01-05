@@ -16,7 +16,8 @@ services:
       - 5432:5432
 
   ### Prefect Server
-  orion:
+  prefect_server:
+    container_name: prefect_server
     image: prefecthq/prefect:2-python3.10
     restart: always
     volumes:
@@ -33,17 +34,21 @@ services:
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin4_container
+    env_file:
+      - .env
     restart: always
     ports:
       - "8888:80"
     environment:
       - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
       - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - PGADMIN_LISTEN_PORT=${PGADMIN_LISTEN_PORT}
     volumes:
       - .pgadmin-data:/var/lib/pgadmin
 
   ### Jupyterlab development environment (comment out if not needed)
   dev_container:
+    container_name: dev
     image: user/bar
     ports:
       - 8080:8080

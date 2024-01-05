@@ -3,3 +3,4 @@
 **dev.ipynb
 **.ipynb_checkpoints**
 .env
+.pgadmin-data/
