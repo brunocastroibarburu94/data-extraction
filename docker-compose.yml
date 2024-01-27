@@ -1,6 +1,22 @@
 
 version: "3.9"
 services:
+  ### MS SQL (Microsoft Server SQL)
+  mssql:
+    container_name: mssql
+    restart: always
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - MSSQL_TCP_PORT=1433
+      - MSSQL_IP_ADDRESS=0.0.0.0
+      - MSSQL_PID=EnterpriseCore
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    volumes:
+      - $HOME/databases/mssql:/var/opt/mssql/data
+    ports:
+      - 1433:1433
+
   ### PostgreSQL Database
   postgres:
     container_name: postgres
@@ -11,25 +27,45 @@ services:
       - POSTGRES_DB=${POSTGRES_DB}
     image: postgres:latest
     volumes:
-      - $HOME/database:/var/lib/postgresql
+      - $HOME/databases/postgres:/var/lib/postgresql
     ports:
       - 5432:5432
 
   ### Prefect Server
   prefect_server:
     container_name: prefect_server
-    image: prefecthq/prefect:2-python3.10
+    image: prefecthq/prefect:2.11.5-python3.11
     restart: always
     volumes:
       - .prefect:/root/.prefect
-    entrypoint: ["prefect", "server", "start","--log-level", "DEBUG", "--host", "0.0.0.0"]
+    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "server", "start"]
     environment:
-      - PREFECT_ORION_API_HOST=0.0.0.0
-      - PREFECT_ORION_DATABASE_CONNECTION_URL=postgresql+asyncpg://postgres:postgres@database:5432/orion
+      - PREFECT_UI_URL=http://127.0.0.1:4200/api
+      - PREFECT_API_URL=http://127.0.0.1:4200/api
+      # If you want to access Prefect Server UI from anywhere other than the Docker host machine, you will need to change
+      # PREFECT_UI_URL and PREFECT_API_URL to match the external hostname/IP of the host machine. For example:
+      #- PREFECT_UI_URL=http://external-ip:4200/api
+      #- PREFECT_API_URL=http://external-ip:4200/api
+      - PREFECT_SERVER_API_HOST=0.0.0.0
+      - PREFECT_API_DATABASE_CONNECTION_URL=postgresql+asyncpg://postgres:postgres@postgres:5432/prefect
+      # Uncomment the following line if you want to use the 'S3 Bucket' storage block instead of the older 'S3' storage
+      # - EXTRA_PIP_PACKAGES=prefect-aws
     ports:
       - 4200:4200
     depends_on:
       - postgres
+
+
+  ## Prefect Agent
+  agent:
+    image: prefecthq/prefect:2.11.5-python3.11
+    restart: always
+    entrypoint: ["/opt/prefect/entrypoint.sh", "prefect", "agent", "start", "-q", "YOUR_WORK_QUEUE_NAME"]
+    environment:
+      - PREFECT_API_URL=http://prefect_server:4200/api
+#       Use PREFECT_API_KEY if connecting the agent to Prefect Cloud
+#     - PREFECT_API_KEY=YOUR_API_KEY
+    profiles: ["agent","prefect"]
 
   pgadmin:
     image: dpage/pgadmin4
@@ -59,3 +95,7 @@ services:
     volumes:
       - $PWD:/root/project
 
+
+networks:
+  default:
+    name: my-default-network
